@@ -119,6 +119,9 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
         add_action('wp_ajax_vue_contact_form_send_mail', array(&$this, 'ajaxSendMail'));        // logged-in users
         add_action('wp_ajax_nopriv_vue_contact_form_send_mail', array(&$this, 'ajaxSendMail')); // non-logged-in users
 
+        add_action('wp_ajax_vue_contact_form_send_mail_as_user', array(&$this, 'ajaxSendMailAsUser')); // non-logged-in users
+        add_action('wp_ajax_nopriv_vue_contact_form_send_mail_as_user', array(&$this, 'ajaxSendMailAsUser')); // non-logged-in users
+
         // For adding meta tags.
         // add_action('wp_head', array(&$this, 'addMeta'));
     }
@@ -247,6 +250,57 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
         
         echo json_encode($out);
         
+        die();
+    }
+
+    public function ajaxSendMailAsUser()
+    {
+        // Don't let IE cache this request
+        header("Pragma: no-cache");
+        header("Cache-Control: no-cache, must-revalidate");
+        header("Content-type: application/json");
+
+        $in = json_decode(file_get_contents('php://input'));
+
+        if ($in)
+        {
+            $credentials = $in->credentials;
+
+            $user = wp_authenticate($credentials->username, $credentials->password);
+
+            if(!is_wp_error($user))
+            {
+                $to = $this->getOption('EMail');
+
+                $headers = "From: {$user->display_name} <{$to}>\r\n" .
+                    "Reply-To: {$user->display_name} <{$user->user_email}>\r\n" .
+                    'X-Mailer: PHP/' . phpversion();
+
+                if (wp_mail($to, $in->subject, $in->message, $headers))
+                {
+                    $out->status = "sent";
+                }
+                else
+                {
+                    $out->status = "error";
+                    $out->message = "Error sending email.";
+                }
+            }
+            else
+            {
+                $out->status = "error";
+                $out->message = "Authentication failed.";
+            }
+        }
+        else
+        {
+            $json_error = json_last_error();
+            $out->status = "error";
+            $out->message = "Cannot decode input. JSON error number: {$json_error}.";
+        }
+
+        echo json_encode($out);
+
         die();
     }
 
