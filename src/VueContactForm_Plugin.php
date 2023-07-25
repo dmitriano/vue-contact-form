@@ -125,6 +125,8 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
 
     public function doContactForm() {
         ob_start();
+        $user = wp_get_current_user();
+        $logged_in = $user->exists();
         ?>
     <div id="vue_contact_form_app">
         <div class="basic-message" v-bind:class="{ 'error-message' : status == 'error', 'success-message' : status == 'sent' || status == 'sending' }" v-on:click="closeMessage">
@@ -134,11 +136,11 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
             <fieldset>
                 <div>
                     <label class="label" for="name">Your Name:</label>
-                    <input type="text" name="name" id="name" placeholder="Your Name" required="" maxlength="80" v-model="name">
+                    <input type="text" name="name" id="name" placeholder="Your Name" required="" maxlength="80" v-model="name" value="<?php echo $logged_in ? $user->display_name : ""?>">
                 </div>
                 <div>
                     <label class="label" for="email">Your Email:</label>
-                    <input type="email" name="email" id="email" placeholder="name@domain.com" required="" maxlength="40" :class="{ email , error: !email.valid }" v-model="email.value">
+                    <input type="email" name="email" id="email" placeholder="name@domain.com" required="" maxlength="40" :class="{ email , error: !email.valid }" v-model="email.value" value="<?php echo $logged_in ? $user->user_email : ""?>">
                 </div>
                 <div>
                     <label class="label" for="subject">Subject:</label>
