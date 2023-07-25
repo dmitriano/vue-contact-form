@@ -200,6 +200,8 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
         header("Cache-Control: no-cache, must-revalidate");
         header("Content-type: application/json");
      
+        $out = new stdClass();
+
         $in = json_decode(file_get_contents('php://input'));
 
         if ($in) {
@@ -259,6 +261,8 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
         header("Pragma: no-cache");
         header("Cache-Control: no-cache, must-revalidate");
         header("Content-type: application/json");
+
+        $out = new stdClass();
 
         $in = json_decode(file_get_contents('php://input'));
 
