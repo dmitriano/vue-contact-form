@@ -194,12 +194,18 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
         return $output;
     }
 
-    public function ajaxSendMail() {
+    private function setHeaders()
+    {
         // Don't let IE cache this request
         header("Pragma: no-cache");
         header("Cache-Control: no-cache, must-revalidate");
         header("Content-type: application/json");
-     
+    }
+    
+    public function ajaxSendMail()
+    {
+        $this->setHeaders();
+        
         $out = new stdClass();
 
         $in = json_decode(file_get_contents('php://input'));
@@ -257,10 +263,7 @@ class VueContactForm_Plugin extends VueContactForm_LifeCycle
 
     public function ajaxSendMailAsUser()
     {
-        // Don't let IE cache this request
-        header("Pragma: no-cache");
-        header("Cache-Control: no-cache, must-revalidate");
-        header("Content-type: application/json");
+        $this->setHeaders();
 
         $out = new stdClass();
 
